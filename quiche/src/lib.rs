@@ -52,19 +52,18 @@
 //! a new connection, while [`accept()`] is for servers:
 //!
 //! ```
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let server_name = "quic.tech";
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
 //! // Client connection.
-//! let conn =
-//!     quiche::connect(Some(&server_name), &scid, local, peer, &mut config)?;
+//! let conn = quiche::connect(Some(&server_name), &scid, local, peer, &config)?;
 //!
 //! // Server connection.
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! let conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! let conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! # Ok::<(), quiche::Error>(())
 //! ```
 //!
@@ -84,11 +83,11 @@
 //! ```no_run
 //! # let mut buf = [0; 512];
 //! # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! let to = socket.local_addr().unwrap();
 //!
 //! loop {
@@ -125,11 +124,11 @@
 //! ```no_run
 //! # let mut out = [0; 512];
 //! # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! loop {
 //!     let (write, send_info) = match conn.send(&mut out) {
 //!         Ok(v) => v,
@@ -159,11 +158,11 @@
 //! obtained using the connection's [`timeout()`] method.
 //!
 //! ```
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! let timeout = conn.timeout();
 //! # Ok::<(), quiche::Error>(())
 //! ```
@@ -176,11 +175,11 @@
 //! ```no_run
 //! # let mut out = [0; 512];
 //! # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! // Timeout expired, handle it.
 //! conn.on_timeout();
 //!
@@ -232,11 +231,11 @@
 //! Data can be sent on a stream by using the [`stream_send()`] method:
 //!
 //! ```no_run
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! if conn.is_established() {
 //!     // Handshake completed, send some data on stream 0.
 //!     conn.stream_send(0, b"hello", true)?;
@@ -253,11 +252,11 @@
 //!
 //! ```no_run
 //! # let mut buf = [0; 512];
-//! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+//! # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
 //! if conn.is_established() {
 //!     // Iterate over readable streams.
 //!     for stream_id in conn.readable() {
@@ -1337,17 +1336,17 @@ pub struct Connection {
 /// ## Examples:
 ///
 /// ```no_run
-/// # let mut config = quiche::Config::new(0xbabababa)?;
+/// # let config = quiche::Config::new(0xbabababa)?;
 /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 /// # let local = "127.0.0.1:0".parse().unwrap();
 /// # let peer = "127.0.0.1:1234".parse().unwrap();
-/// let conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+/// let conn = quiche::accept(&scid, None, local, peer, &config)?;
 /// # Ok::<(), quiche::Error>(())
 /// ```
 #[inline]
 pub fn accept(
     scid: &ConnectionId, odcid: Option<&ConnectionId>, local: SocketAddr,
-    peer: SocketAddr, config: &mut Config,
+    peer: SocketAddr, config: &Config,
 ) -> Result<Connection> {
     let conn = Connection::new(scid, odcid, local, peer, config, true)?;
 
@@ -1363,19 +1362,18 @@ pub fn accept(
 /// ## Examples:
 ///
 /// ```no_run
-/// # let mut config = quiche::Config::new(0xbabababa)?;
+/// # let config = quiche::Config::new(0xbabababa)?;
 /// # let server_name = "quic.tech";
 /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 /// # let local = "127.0.0.1:4321".parse().unwrap();
 /// # let peer = "127.0.0.1:1234".parse().unwrap();
-/// let conn =
-///     quiche::connect(Some(&server_name), &scid, local, peer, &mut config)?;
+/// let conn = quiche::connect(Some(&server_name), &scid, local, peer, &config)?;
 /// # Ok::<(), quiche::Error>(())
 /// ```
 #[inline]
 pub fn connect(
     server_name: Option<&str>, scid: &ConnectionId, local: SocketAddr,
-    peer: SocketAddr, config: &mut Config,
+    peer: SocketAddr, config: &Config,
 ) -> Result<Connection> {
     let mut conn = Connection::new(scid, None, local, peer, config, false)?;
 
@@ -1434,7 +1432,7 @@ pub fn negotiate_version(
 /// ## Examples:
 ///
 /// ```no_run
-/// # let mut config = quiche::Config::new(0xbabababa)?;
+/// # let config = quiche::Config::new(0xbabababa)?;
 /// # let mut buf = [0; 512];
 /// # let mut out = [0; 512];
 /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
@@ -1472,7 +1470,7 @@ pub fn negotiate_version(
 ///     return Ok(());
 /// }
 ///
-/// let conn = quiche::accept(&scid, odcid.as_ref(), local, peer, &mut config)?;
+/// let conn = quiche::accept(&scid, odcid.as_ref(), local, peer, &config)?;
 /// # Ok::<(), quiche::Error>(())
 /// ```
 #[inline]
@@ -1588,7 +1586,7 @@ impl Default for QlogInfo {
 impl Connection {
     fn new(
         scid: &ConnectionId, odcid: Option<&ConnectionId>, local: SocketAddr,
-        peer: SocketAddr, config: &mut Config, is_server: bool,
+        peer: SocketAddr, config: &Config, is_server: bool,
     ) -> Result<Connection> {
         let tls = config.tls_ctx.new_handshake()?;
         Connection::with_tls(scid, odcid, local, peer, config, tls, is_server)
@@ -1596,8 +1594,7 @@ impl Connection {
 
     fn with_tls(
         scid: &ConnectionId, odcid: Option<&ConnectionId>, local: SocketAddr,
-        peer: SocketAddr, config: &mut Config, tls: tls::Handshake,
-        is_server: bool,
+        peer: SocketAddr, config: &Config, tls: tls::Handshake, is_server: bool,
     ) -> Result<Connection> {
         let max_rx_data = config.local_transport_params.initial_max_data;
 
@@ -1956,18 +1953,15 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// loop {
     ///     let (read, from) = socket.recv_from(&mut buf).unwrap();
     ///
-    ///     let recv_info = quiche::RecvInfo {
-    ///         from,
-    ///         to: local,
-    ///     };
+    ///     let recv_info = quiche::RecvInfo { from, to: local };
     ///
     ///     let read = match conn.recv(&mut buf[..read], recv_info) {
     ///         Ok(v) => v,
@@ -2781,11 +2775,11 @@ impl Connection {
     /// ```no_run
     /// # let mut out = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// loop {
     ///     let (write, send_info) = match conn.send(&mut out) {
     ///         Ok(v) => v,
@@ -2868,25 +2862,26 @@ impl Connection {
     /// ```no_run
     /// # let mut out = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// loop {
-    ///     let (write, send_info) = match conn.send_on_path(&mut out, Some(local), Some(peer)) {
-    ///         Ok(v) => v,
+    ///     let (write, send_info) =
+    ///         match conn.send_on_path(&mut out, Some(local), Some(peer)) {
+    ///             Ok(v) => v,
     ///
-    ///         Err(quiche::Error::Done) => {
-    ///             // Done writing.
-    ///             break;
-    ///         },
+    ///             Err(quiche::Error::Done) => {
+    ///                 // Done writing.
+    ///                 break;
+    ///             },
     ///
-    ///         Err(e) => {
-    ///             // An error occurred, handle it.
-    ///             break;
-    ///         },
-    ///     };
+    ///             Err(e) => {
+    ///                 // An error occurred, handle it.
+    ///                 break;
+    ///             },
+    ///         };
     ///
     ///     socket.send_to(&out[..write], &send_info.to).unwrap();
     /// }
@@ -4175,11 +4170,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// # let stream_id = 0;
     /// while let Ok((read, fin)) = conn.stream_recv(stream_id, &mut buf) {
     ///     println!("Got {} bytes on stream {}", read, stream_id);
@@ -4304,11 +4299,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = "127.0.0.1:4321".parse().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// # let stream_id = 0;
     /// conn.stream_send(stream_id, b"hello", true)?;
     /// # Ok::<(), quiche::Error>(())
@@ -4711,11 +4706,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// // Iterate over readable streams.
     /// for stream_id in conn.readable() {
     ///     // Stream is readable, read until there's no more data.
@@ -4747,11 +4742,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let local = socket.local_addr().unwrap();
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// // Iterate over writable streams.
     /// for stream_id in conn.writable() {
     ///     // Stream is writable, write some data.
@@ -4822,11 +4817,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// let mut dgram_buf = [0; 512];
     /// while let Ok((len)) = conn.dgram_recv(&mut dgram_buf) {
     ///     println!("Got {} bytes of DATAGRAM", len);
@@ -4948,11 +4943,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// conn.dgram_send(b"hello")?;
     /// # Ok::<(), quiche::Error>(())
     /// ```
@@ -5017,11 +5012,11 @@ impl Connection {
     /// ## Examples:
     /// ```no_run
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// conn.dgram_send(b"hello")?;
     /// conn.dgram_purge_outgoing(&|d: &[u8]| -> bool { d[0] == 0 });
     /// # Ok::<(), quiche::Error>(())
@@ -5041,11 +5036,11 @@ impl Connection {
     /// ```no_run
     /// # let mut buf = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
     /// # let local = socket.local_addr().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// if let Some(payload_size) = conn.dgram_max_writable_len() {
     ///     if payload_size > 5 {
     ///         conn.dgram_send(b"hello")?;
@@ -5523,11 +5518,11 @@ impl Connection {
     /// ```no_run
     /// # let mut out = [0; 512];
     /// # let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
-    /// # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
+    /// # let config = quiche::Config::new(quiche::PROTOCOL_VERSION)?;
     /// # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
     /// # let local = socket.local_addr().unwrap();
     /// # let peer = "127.0.0.1:1234".parse().unwrap();
-    /// # let mut conn = quiche::accept(&scid, None, local, peer, &mut config)?;
+    /// # let mut conn = quiche::accept(&scid, None, local, peer, &config)?;
     /// // Iterate over possible destinations for the given local `SockAddr`.
     /// for dest in conn.paths_iter(local) {
     ///     loop {
@@ -7568,7 +7563,7 @@ pub mod testing {
             config.verify_peer(false);
             config.set_ack_delay_exponent(8);
 
-            Pipe::with_config(&mut config)
+            Pipe::with_config(&config)
         }
 
         pub fn client_addr() -> SocketAddr {
@@ -7579,7 +7574,7 @@ pub mod testing {
             "127.0.0.1:4321".parse().unwrap()
         }
 
-        pub fn with_config(config: &mut Config) -> Result<Pipe> {
+        pub fn with_config(config: &Config) -> Result<Pipe> {
             let mut client_scid = [0; 16];
             rand::rand_bytes(&mut client_scid[..]);
             let client_scid = ConnectionId::from_ref(&client_scid);
@@ -7609,7 +7604,7 @@ pub mod testing {
         }
 
         pub fn with_config_and_scid_lengths(
-            config: &mut Config, client_scid_len: usize, server_scid_len: usize,
+            config: &Config, client_scid_len: usize, server_scid_len: usize,
         ) -> Result<Pipe> {
             let mut client_scid = vec![0; client_scid_len];
             rand::rand_bytes(&mut client_scid[..]);
@@ -7639,7 +7634,7 @@ pub mod testing {
             })
         }
 
-        pub fn with_client_config(client_config: &mut Config) -> Result<Pipe> {
+        pub fn with_client_config(client_config: &Config) -> Result<Pipe> {
             let mut client_scid = [0; 16];
             rand::rand_bytes(&mut client_scid[..]);
             let client_scid = ConnectionId::from_ref(&client_scid);
@@ -7674,12 +7669,12 @@ pub mod testing {
                     None,
                     server_addr,
                     client_addr,
-                    &mut config,
+                    &config,
                 )?,
             })
         }
 
-        pub fn with_server_config(server_config: &mut Config) -> Result<Pipe> {
+        pub fn with_server_config(server_config: &Config) -> Result<Pipe> {
             let mut client_scid = [0; 16];
             rand::rand_bytes(&mut client_scid[..]);
             let client_scid = ConnectionId::from_ref(&client_scid);
@@ -7705,7 +7700,7 @@ pub mod testing {
                     &client_scid,
                     client_addr,
                     server_addr,
-                    &mut config,
+                    &config,
                 )?,
                 server: accept(
                     &server_scid,
@@ -8095,7 +8090,7 @@ mod tests {
             .unwrap();
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Err(Error::UnknownVersion));
     }
 
@@ -8123,7 +8118,7 @@ mod tests {
             .unwrap();
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
 
         let (mut len, _) = pipe.client.send(&mut buf).unwrap();
 
@@ -8149,7 +8144,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
     }
 
@@ -8304,7 +8299,7 @@ mod tests {
         config.set_ticket_key(&SESSION_TICKET_KEY).unwrap();
 
         // Perform initial handshake.
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.is_established(), true);
@@ -8333,7 +8328,7 @@ mod tests {
         config.set_initial_max_streams_bidi(3);
         config.set_ticket_key(&SESSION_TICKET_KEY).unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
 
         assert_eq!(pipe.client.set_session(session), Ok(()));
         assert_eq!(pipe.handshake(), Ok(()));
@@ -8355,7 +8350,7 @@ mod tests {
             .unwrap();
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Err(Error::TlsFail));
 
         assert_eq!(pipe.client.application_proto(), b"");
@@ -8391,14 +8386,14 @@ mod tests {
         config.verify_peer(false);
 
         // Perform initial handshake.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Extract session,
         let session = pipe.client.session().unwrap();
 
         // Configure session on new connection.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.client.set_session(session), Ok(()));
 
         // Client sends initial flight.
@@ -8452,14 +8447,14 @@ mod tests {
         config.verify_peer(false);
 
         // Perform initial handshake.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Extract session,
         let session = pipe.client.session().unwrap();
 
         // Configure session on new connection.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.client.set_session(session), Ok(()));
 
         // Client sends initial flight.
@@ -8523,14 +8518,14 @@ mod tests {
         config.verify_peer(false);
 
         // Perform initial handshake.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Extract session,
         let session = pipe.client.session().unwrap();
 
         // Configure session on new connection.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.client.set_session(session), Ok(()));
 
         // Client sends initial flight.
@@ -8569,7 +8564,7 @@ mod tests {
             .unwrap();
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.version, PROTOCOL_VERSION_DRAFT29);
@@ -8589,7 +8584,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
 
         let flight = testing::emit_flight(&mut pipe.client).unwrap();
         let client_sent = flight.iter().fold(0, |out, p| out + p.0.len());
@@ -8644,14 +8639,14 @@ mod tests {
         config.verify_peer(false);
 
         // Perform initial handshake.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Extract session,
         let session = pipe.client.session().unwrap();
 
         // Configure session on new connection.
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.client.set_session(session), Ok(()));
 
         // Client sends initial flight.
@@ -8702,7 +8697,7 @@ mod tests {
         config.set_initial_max_streams_uni(0);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // In 32bit arch, send_capacity() should be min(2^32+5, cwnd),
@@ -9879,7 +9874,7 @@ mod tests {
         config.set_initial_max_streams_uni(0);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends some data.
@@ -10079,7 +10074,7 @@ mod tests {
         config.set_initial_max_streams_bidi(10);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.stream_send(0, b"a", false), Ok(1));
@@ -10243,7 +10238,7 @@ mod tests {
         config.set_initial_max_streams_uni(0);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends some data.
@@ -10729,7 +10724,7 @@ mod tests {
         config.set_initial_max_streams_uni(0);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -10805,7 +10800,7 @@ mod tests {
         config.set_initial_max_streams_uni(3);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -11063,7 +11058,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         match pipe.client.peer_cert_chain() {
@@ -11088,7 +11083,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
 
         // Client sends initial flight.
         let (mut len, _) = pipe.client.send(&mut buf).unwrap();
@@ -11129,7 +11124,7 @@ mod tests {
             Some(&odcid),
             testing::Pipe::server_addr(),
             from,
-            &mut config,
+            &config,
         )
         .unwrap();
         assert_eq!(pipe.server_recv(&mut buf[..len]), Ok(len));
@@ -11155,7 +11150,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
 
         // Client sends initial flight.
         let (mut len, _) = pipe.client.send(&mut buf).unwrap();
@@ -11188,7 +11183,7 @@ mod tests {
         // destination connection ID is ignored.
         let from = "127.0.0.1:1234".parse().unwrap();
         pipe.server =
-            accept(&scid, None, testing::Pipe::server_addr(), from, &mut config)
+            accept(&scid, None, testing::Pipe::server_addr(), from, &config)
                 .unwrap();
         assert_eq!(pipe.server_recv(&mut buf[..len]), Ok(len));
 
@@ -11215,7 +11210,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
 
         // Client sends initial flight.
         let (mut len, _) = pipe.client.send(&mut buf).unwrap();
@@ -11253,7 +11248,7 @@ mod tests {
             Some(&odcid),
             testing::Pipe::server_addr(),
             from,
-            &mut config,
+            &config,
         )
         .unwrap();
         assert_eq!(pipe.server_recv(&mut buf[..len]), Ok(len));
@@ -11488,7 +11483,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1200);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -11529,7 +11524,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1200);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -11572,7 +11567,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1405);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -11615,7 +11610,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1406);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -11658,7 +11653,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1200);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client sends stream data.
@@ -11770,7 +11765,7 @@ mod tests {
         config.set_initial_max_streams_uni(0);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.stream_send(0, b"a", false), Ok(1));
@@ -11996,7 +11991,7 @@ mod tests {
         config.set_initial_max_streams_uni(0);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.stream_send(0, b"a", false), Ok(1));
@@ -12117,7 +12112,7 @@ mod tests {
         config.enable_dgram(true, 10, 10);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.stream_send(0, b"a", false), Ok(1));
@@ -12421,7 +12416,7 @@ mod tests {
             .set_application_protos(&[b"proto1", b"proto2"])
             .unwrap();
 
-        let mut pipe = testing::Pipe::with_server_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_server_config(&config).unwrap();
 
         assert_eq!(pipe.client.handshake_status().has_handshake_keys, false);
         assert_eq!(pipe.client.handshake_status().peer_verified_address, false);
@@ -12538,7 +12533,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1200);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         for _ in 0..1000 {
@@ -12609,7 +12604,7 @@ mod tests {
         config.enable_dgram(true, 10, 10);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.dgram_send(b"hello, world"), Ok(()));
@@ -12646,7 +12641,7 @@ mod tests {
         config.enable_dgram(true, 2, 3);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.dgram_send_queue_len(), 0);
@@ -12720,7 +12715,7 @@ mod tests {
         config.enable_dgram(true, 10, 2);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.dgram_send(b"hello, world"), Ok(()));
@@ -12767,7 +12762,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1200);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.dgram_send(b"hello, world"), Ok(()));
@@ -12814,7 +12809,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1452);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
 
         // Before handshake (before peer settings) we don't know max dgram size
         assert_eq!(pipe.client.dgram_max_writable_len(), None);
@@ -12865,7 +12860,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1452);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // No readable data.
@@ -13199,7 +13194,7 @@ mod tests {
         config.set_initial_max_streams_bidi(10);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         assert_eq!(pipe.client.stream_send(0, b"hello!", true), Ok(6));
@@ -13327,7 +13322,7 @@ mod tests {
         config.set_max_recv_udp_payload_size(1200);
         config.verify_peer(false);
 
-        let mut pipe = testing::Pipe::with_client_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_client_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Client opens stream 4 and 8.
@@ -13392,7 +13387,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(3);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // So far, there should not have any QUIC event.
@@ -13451,7 +13446,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // So far, there should not have any QUIC event.
@@ -13551,7 +13546,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         let scid = pipe.client.source_id().into_owned();
@@ -13611,7 +13606,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(3);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         let (scid_1, reset_token_1) = testing::create_cid_and_reset_token(16);
@@ -13651,7 +13646,7 @@ mod tests {
 
     // Utility function.
     fn pipe_with_exchanged_cids(
-        config: &mut Config, client_scid_len: usize, server_scid_len: usize,
+        config: &Config, client_scid_len: usize, server_scid_len: usize,
         additional_cids: usize,
     ) -> testing::Pipe {
         let mut pipe = testing::Pipe::with_config_and_scid_lengths(
@@ -13732,7 +13727,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         let server_addr = testing::Pipe::server_addr();
@@ -13823,7 +13818,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
@@ -13888,7 +13883,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
@@ -13942,7 +13937,7 @@ mod tests {
         config.set_initial_max_stream_data_uni(10);
         config.set_initial_max_streams_uni(3);
 
-        let mut pipe = testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Server sends stream data.
@@ -13973,7 +13968,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
@@ -14024,7 +14019,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
@@ -14090,7 +14085,7 @@ mod tests {
         config.verify_peer(false);
         config.set_active_connection_id_limit(2);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
         assert_eq!(pipe.client.probe_path(client_addr_2, server_addr), Ok(1));
@@ -14120,7 +14115,7 @@ mod tests {
         config.set_initial_max_streams_bidi(2);
         config.set_active_connection_id_limit(4);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 3);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 3);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr = testing::Pipe::client_addr();
@@ -14255,7 +14250,7 @@ mod tests {
         config.set_initial_max_stream_data_uni(10);
         config.set_initial_max_streams_bidi(3);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 2);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 2);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
@@ -14468,7 +14463,7 @@ mod tests {
         config.set_initial_max_stream_data_uni(10);
         config.set_initial_max_streams_bidi(3);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 0, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 0, 16, 1);
 
         let server_addr = testing::Pipe::server_addr();
         let client_addr_2 = "127.0.0.1:5678".parse().unwrap();
@@ -14545,7 +14540,7 @@ mod tests {
         config.set_initial_max_stream_data_uni(10);
         config.set_initial_max_streams_bidi(3);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
 
         let client_addr = testing::Pipe::client_addr();
         let server_addr = testing::Pipe::server_addr();
@@ -14611,7 +14606,7 @@ mod tests {
         config.set_initial_max_stream_data_bidi_remote(100000);
         config.set_initial_max_streams_bidi(2);
 
-        let mut pipe = pipe_with_exchanged_cids(&mut config, 16, 16, 1);
+        let mut pipe = pipe_with_exchanged_cids(&config, 16, 16, 1);
 
         let client_addr = testing::Pipe::client_addr();
         let server_addr = testing::Pipe::server_addr();

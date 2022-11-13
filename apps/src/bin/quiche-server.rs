@@ -342,7 +342,7 @@ fn main() {
                     odcid.as_ref(),
                     local_addr,
                     from,
-                    &mut config,
+                    &config,
                 )
                 .unwrap();
 

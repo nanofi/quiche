@@ -123,7 +123,7 @@
 //!
 //! let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION).unwrap();
 //! let scid = [0xba; 16];
-//! let mut conn = quiche::connect(None, &scid, &mut config).unwrap();
+//! let mut conn = quiche::connect(None, &scid, &config).unwrap();
 //! let h3_config = quiche::h3::Config::new()?;
 //! let mut http3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //!
@@ -153,7 +153,7 @@
 //! # let mut test = http3_test::Http3Test::new(url, reqs, assert, true);
 //! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION).unwrap();
 //! # let scid = [0xba; 16];
-//! # let mut conn = quiche::connect(None, &scid, &mut config).unwrap();
+//! # let mut conn = quiche::connect(None, &scid, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! # let mut http3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! match http3_conn.poll(&mut conn) {
@@ -193,7 +193,7 @@
 //! # let mut test = http3_test::Http3Test::new(url, reqs, assert, true);
 //! # let mut config = quiche::Config::new(quiche::PROTOCOL_VERSION).unwrap();
 //! # let scid = [0xba; 16];
-//! # let mut conn = quiche::connect(None, &scid, &mut config).unwrap();
+//! # let mut conn = quiche::connect(None, &scid, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! # let mut http3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! let mut requests_complete = 0;

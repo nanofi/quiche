@@ -174,7 +174,7 @@ pub fn connect(
         &scid,
         local_addr,
         peer_addr,
-        &mut config,
+        &config,
     )
     .unwrap();
 

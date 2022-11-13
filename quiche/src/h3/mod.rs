@@ -62,7 +62,7 @@
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config).unwrap();
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! let h3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! # Ok::<(), quiche::h3::Error>(())
@@ -79,7 +79,7 @@
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::connect(None, &scid, local, peer, &mut config).unwrap();
+//! # let mut conn = quiche::connect(None, &scid, local, peer, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! # let mut h3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! let req = vec![
@@ -102,7 +102,7 @@
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:4321".parse().unwrap();
-//! # let mut conn = quiche::connect(None, &scid, local, peer, &mut config).unwrap();
+//! # let mut conn = quiche::connect(None, &scid, local, peer, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! # let mut h3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! let req = vec![
@@ -134,7 +134,7 @@
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:1234".parse().unwrap();
-//! # let mut conn = quiche::accept(&scid, None, local, peer, &mut config).unwrap();
+//! # let mut conn = quiche::accept(&scid, None, local, peer, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! # let mut h3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! loop {
@@ -203,7 +203,7 @@
 //! # let scid = quiche::ConnectionId::from_ref(&[0xba; 16]);
 //! # let peer = "127.0.0.1:1234".parse().unwrap();
 //! # let local = "127.0.0.1:1234".parse().unwrap();
-//! # let mut conn = quiche::connect(None, &scid, local, peer, &mut config).unwrap();
+//! # let mut conn = quiche::connect(None, &scid, local, peer, &config).unwrap();
 //! # let h3_config = quiche::h3::Config::new()?;
 //! # let mut h3_conn = quiche::h3::Connection::with_transport(&mut conn, &h3_config)?;
 //! loop {
@@ -2857,11 +2857,11 @@ pub mod testing {
             config.set_ack_delay_exponent(8);
 
             let h3_config = Config::new()?;
-            Session::with_configs(&mut config, &h3_config)
+            Session::with_configs(&config, &h3_config)
         }
 
         pub fn with_configs(
-            config: &mut crate::Config, h3_config: &Config,
+            config: &crate::Config, h3_config: &Config,
         ) -> Result<Session> {
             let pipe = testing::Pipe::with_config(config)?;
             let client_dgram = pipe.client.dgram_enabled();
@@ -3178,14 +3178,14 @@ mod tests {
         let h3_config = Config::new().unwrap();
 
         // Perform initial handshake.
-        let mut pipe = crate::testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = crate::testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.handshake(), Ok(()));
 
         // Extract session,
         let session = pipe.client.session().unwrap();
 
         // Configure session on new connection.
-        let mut pipe = crate::testing::Pipe::with_config(&mut config).unwrap();
+        let mut pipe = crate::testing::Pipe::with_config(&config).unwrap();
         assert_eq!(pipe.client.set_session(session), Ok(()));
 
         // Can't create an H3 connection until the QUIC connection is determined
@@ -4654,7 +4654,7 @@ mod tests {
         let mut h3_config = Config::new().unwrap();
         h3_config.set_max_field_section_size(65);
 
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
 
         s.handshake().unwrap();
 
@@ -4790,7 +4790,7 @@ mod tests {
 
         let mut h3_config = Config::new().unwrap();
 
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
 
         s.handshake().unwrap();
 
@@ -4836,7 +4836,7 @@ mod tests {
 
         let mut h3_config = Config::new().unwrap();
 
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
 
         s.handshake().unwrap();
 
@@ -4946,7 +4946,7 @@ mod tests {
 
         let mut h3_config = Config::new().unwrap();
 
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
 
         s.handshake().unwrap();
 
@@ -4995,7 +4995,7 @@ mod tests {
         config.grease(false);
 
         let h3_config = Config::new().unwrap();
-        let mut s = Session::with_configs(&mut config, &h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &h3_config).unwrap();
 
         s.handshake().unwrap();
 
@@ -5025,7 +5025,7 @@ mod tests {
 
         let h3_config = Config::new().unwrap();
 
-        let mut s = Session::with_configs(&mut config, &h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &h3_config).unwrap();
         assert_eq!(s.pipe.handshake(), Ok(()));
 
         s.client.send_settings(&mut s.pipe.client).unwrap();
@@ -5069,7 +5069,7 @@ mod tests {
 
         let h3_config = Config::new().unwrap();
 
-        let mut s = Session::with_configs(&mut config, &h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &h3_config).unwrap();
         assert_eq!(s.pipe.handshake(), Ok(()));
 
         s.client.control_stream_id = Some(
@@ -5120,7 +5120,7 @@ mod tests {
 
         let h3_config = Config::new().unwrap();
 
-        let mut s = Session::with_configs(&mut config, &h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &h3_config).unwrap();
         assert_eq!(s.pipe.handshake(), Ok(()));
 
         s.client.control_stream_id = Some(
@@ -5282,7 +5282,7 @@ mod tests {
         config.enable_dgram(true, 100, 100);
 
         let mut h3_config = Config::new().unwrap();
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
         s.handshake().unwrap();
 
         // Send request followed by DATAGRAM on client side.
@@ -5330,7 +5330,7 @@ mod tests {
         config.enable_dgram(true, 100, 100);
 
         let mut h3_config = Config::new().unwrap();
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
         s.handshake().unwrap();
 
         // We'll send default data of 10 bytes on flow ID 0.
@@ -5422,7 +5422,7 @@ mod tests {
         config.enable_dgram(true, 100, 100);
 
         let mut h3_config = Config::new().unwrap();
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
         s.handshake().unwrap();
 
         // 10 bytes on flow ID 0 and 2.
@@ -5774,7 +5774,7 @@ mod tests {
         config.enable_dgram(true, 100, 100);
 
         let mut h3_config = Config::new().unwrap();
-        let mut s = Session::with_configs(&mut config, &mut h3_config).unwrap();
+        let mut s = Session::with_configs(&config, &mut h3_config).unwrap();
         s.handshake().unwrap();
 
         // 10 bytes on flow ID 0 and 2.

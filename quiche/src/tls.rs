@@ -145,7 +145,7 @@ impl Context {
         unsafe {
             let ctx_raw = SSL_CTX_new(TLS_method());
 
-            let mut ctx = Context(ctx_raw);
+            let ctx = Context(ctx_raw);
 
             ctx.set_session_callback();
 
@@ -159,20 +159,20 @@ impl Context {
     pub fn from_boring(ssl_ctx: boring::ssl::SslContext) -> Context {
         use foreign_types_shared::ForeignType;
 
-        let mut ctx = Context(ssl_ctx.into_ptr() as _);
+        let ctx = Context(ssl_ctx.into_ptr() as _);
         ctx.set_session_callback();
 
         ctx
     }
 
-    pub fn new_handshake(&mut self) -> Result<Handshake> {
+    pub fn new_handshake(&self) -> Result<Handshake> {
         unsafe {
             let ssl = SSL_new(self.as_mut_ptr());
             Ok(Handshake::new(ssl))
         }
     }
 
-    pub fn load_verify_locations_from_file(&mut self, file: &str) -> Result<()> {
+    pub fn load_verify_locations_from_file(&self, file: &str) -> Result<()> {
         let file = ffi::CString::new(file).map_err(|_| Error::TlsFail)?;
         map_result(unsafe {
             SSL_CTX_load_verify_locations(
@@ -183,9 +183,7 @@ impl Context {
         })
     }
 
-    pub fn load_verify_locations_from_directory(
-        &mut self, path: &str,
-    ) -> Result<()> {
+    pub fn load_verify_locations_from_directory(&self, path: &str) -> Result<()> {
         let path = ffi::CString::new(path).map_err(|_| Error::TlsFail)?;
         map_result(unsafe {
             SSL_CTX_load_verify_locations(
@@ -196,14 +194,14 @@ impl Context {
         })
     }
 
-    pub fn use_certificate_chain_file(&mut self, file: &str) -> Result<()> {
+    pub fn use_certificate_chain_file(&self, file: &str) -> Result<()> {
         let cstr = ffi::CString::new(file).map_err(|_| Error::TlsFail)?;
         map_result(unsafe {
             SSL_CTX_use_certificate_chain_file(self.as_mut_ptr(), cstr.as_ptr())
         })
     }
 
-    pub fn use_privkey_file(&mut self, file: &str) -> Result<()> {
+    pub fn use_privkey_file(&self, file: &str) -> Result<()> {
         let cstr = ffi::CString::new(file).map_err(|_| Error::TlsFail)?;
         map_result(unsafe {
             SSL_CTX_use_PrivateKey_file(self.as_mut_ptr(), cstr.as_ptr(), 1)
@@ -211,12 +209,12 @@ impl Context {
     }
 
     #[cfg(not(windows))]
-    fn load_ca_certs(&mut self) -> Result<()> {
+    fn load_ca_certs(&self) -> Result<()> {
         unsafe { map_result(SSL_CTX_set_default_verify_paths(self.as_mut_ptr())) }
     }
 
     #[cfg(windows)]
-    fn load_ca_certs(&mut self) -> Result<()> {
+    fn load_ca_certs(&self) -> Result<()> {
         unsafe {
             let cstr = ffi::CString::new("Root").map_err(|_| Error::TlsFail)?;
             let sys_store = winapi::um::wincrypt::CertOpenSystemStoreA(
@@ -264,7 +262,7 @@ impl Context {
         Ok(())
     }
 
-    fn set_session_callback(&mut self) {
+    fn set_session_callback(&self) {
         unsafe {
             // This is needed to enable the session callback on the client. On
             // the server it doesn't do anything.
@@ -287,13 +285,13 @@ impl Context {
         }
     }
 
-    pub fn enable_keylog(&mut self) {
+    pub fn enable_keylog(&self) {
         unsafe {
             SSL_CTX_set_keylog_callback(self.as_mut_ptr(), keylog);
         }
     }
 
-    pub fn set_alpn(&mut self, v: &[&[u8]]) -> Result<()> {
+    pub fn set_alpn(&self, v: &[&[u8]]) -> Result<()> {
         let mut protos: Vec<u8> = Vec::new();
 
         for proto in v {
@@ -320,7 +318,7 @@ impl Context {
         })
     }
 
-    pub fn set_ticket_key(&mut self, key: &[u8]) -> Result<()> {
+    pub fn set_ticket_key(&self, key: &[u8]) -> Result<()> {
         map_result(unsafe {
             SSL_CTX_set_tlsext_ticket_keys(
                 self.as_mut_ptr(),
@@ -338,7 +336,7 @@ impl Context {
         }
     }
 
-    fn as_mut_ptr(&mut self) -> *mut SSL_CTX {
+    fn as_mut_ptr(&self) -> *mut SSL_CTX {
         self.0
     }
 }

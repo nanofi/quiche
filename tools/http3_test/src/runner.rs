@@ -122,7 +122,7 @@ pub fn run(
     let local_addr = socket.local_addr().unwrap();
 
     let mut conn =
-        quiche::connect(url.domain(), &scid, local_addr, peer_addr, &mut config)
+        quiche::connect(url.domain(), &scid, local_addr, peer_addr, &config)
             .unwrap();
 
     if let Some(session_file) = &session_file {

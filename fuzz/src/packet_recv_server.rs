@@ -8,10 +8,8 @@ extern crate lazy_static;
 
 use std::net::SocketAddr;
 
-use std::sync::Mutex;
-
 lazy_static! {
-    static ref CONFIG: Mutex<quiche::Config> = {
+    static ref CONFIG: quiche::Config = {
         let crt_path = std::env::var("QUICHE_FUZZ_CRT")
             .unwrap_or_else(|_| "fuzz/cert.crt".to_string());
         let key_path = std::env::var("QUICHE_FUZZ_KEY")
@@ -30,7 +28,7 @@ lazy_static! {
         config.set_initial_max_streams_bidi(3);
         config.set_initial_max_streams_uni(3);
 
-        Mutex::new(config)
+        config
     };
 }
 
@@ -43,9 +41,7 @@ fuzz_target!(|data: &[u8]| {
 
     let mut buf = data.to_vec();
 
-    let mut conn =
-        quiche::accept(&SCID, None, to, from, &mut CONFIG.lock().unwrap())
-            .unwrap();
+    let mut conn = quiche::accept(&SCID, None, to, from, &CONFIG).unwrap();
 
     let info = quiche::RecvInfo { from, to };
 

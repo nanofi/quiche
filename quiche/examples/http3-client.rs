@@ -108,7 +108,7 @@ fn main() {
 
     // Create a QUIC connection and initiate handshake.
     let mut conn =
-        quiche::connect(url.domain(), &scid, local_addr, peer_addr, &mut config)
+        quiche::connect(url.domain(), &scid, local_addr, peer_addr, &config)
             .unwrap();
 
     info!(
